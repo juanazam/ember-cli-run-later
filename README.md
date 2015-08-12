@@ -68,8 +68,8 @@ test('can execute code which was scheduled for later', function(assert) {
 
 `ember install ember-cli-run-later`
 
-Make sure to include `import laterQueue from "run-test-mode"` when you
-acceptance is run and clear the `laterQueue` on each run.
+Make sure to include `import laterQueue from "run-test-mode"` when your
+acceptance suite is run and dont forget to clear the `laterQueue` on each run.
 
 ## Installation
 
