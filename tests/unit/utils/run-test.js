@@ -8,7 +8,7 @@ test('later method returns promise with code to be executed and stores in queue'
   laterQueue.empty();
   let myTestingFunction = () => 'value';
 
-  let res = later(myTestingFunction, 200);
+  later(myTestingFunction, 200);
 
   assert.equal(laterQueue.queue.length, 1);
   assert.equal(laterQueue.queue[0].__state, myTestingFunction);
