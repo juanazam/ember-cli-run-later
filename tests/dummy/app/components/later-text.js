@@ -8,9 +8,15 @@ export default Ember.Component.extend({
     return "Still waiting...";
   }),
 
+  promiseResolvedText: Ember.computed(function() {
+    return "unresolved";
+  }),
+
   initLater: Ember.on('init', function() {
     later(() => {
       this.set("text", "Initialized");
-    }, 200);
+    }, 200).then(() => {
+      this.set('promiseResolvedText', "resolved");
+    });
   })
 });

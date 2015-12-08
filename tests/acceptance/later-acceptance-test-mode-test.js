@@ -19,7 +19,14 @@ test('can execute code which was scheduled for later', function(assert) {
   visit('/');
 
   andThen(function() {
-    assert.equal(find('.later-text').text().trim(), "Still waiting...");
+    assert.equal(
+      find('.later-text .first').text().trim(),
+      "Still waiting..."
+    );
+    assert.equal(
+      find('.later-text .second').text().trim(),
+      "unresolved"
+    );
   });
 
   andThen(function() {
@@ -27,6 +34,13 @@ test('can execute code which was scheduled for later', function(assert) {
   });
 
   andThen(function() {
-    assert.equal(find('.later-text').text().trim(), "Initialized");
+    assert.equal(
+      find('.later-text .first').text().trim(),
+      "Initialized"
+    );
+    assert.equal(
+      find('.later-text .second').text().trim(),
+      "resolved"
+    );
   });
 });
