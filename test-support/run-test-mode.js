@@ -22,10 +22,10 @@ let laterQueue = Ember.Object.create({
     @param {Function} fn the function to executed
     @return {Promise} a new promise to be fulfilled on demand
    **/
-  push() {
+  push(...args) {
     let deferred = RSVP.defer();
 
-    deferred.__state = arguments;
+    deferred.__state = args;
 
     this.queue.push(deferred);
 
@@ -33,13 +33,13 @@ let laterQueue = Ember.Object.create({
   },
 
   resolveState(deferred) {
-    let laterArgs = Array.prototype.slice.call(deferred.__state),
+    let laterArgs = deferred.__state,
       firstArg = laterArgs.shift();
 
     laterArgs.pop();
 
     if (typeof firstArg === "function") {
-      run(() => deferred.resolve(firstArg(laterArgs)));
+      run(() => deferred.resolve(firstArg.call(null, laterArgs)));
     } else {
       let providedFunction = laterArgs.shift();
 
@@ -47,7 +47,7 @@ let laterQueue = Ember.Object.create({
         providedFunction = firstArg[providedFunction];
       }
 
-      run(() => deferred.resolve(providedFunction.apply(firstArg, ...laterArgs)));
+      run(() => deferred.resolve(providedFunction.call(firstArg, ...laterArgs)));
     };
   },
 
@@ -81,8 +81,8 @@ let laterQueue = Ember.Object.create({
 });
 
 Run.reopen({
-  later(/* args */) {
-    return laterQueue.push(...arguments);
+  later(...args) {
+    return laterQueue.push(...args);
   }
 });
 
