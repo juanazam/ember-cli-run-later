@@ -21,7 +21,12 @@ Now you can acutally tests your `later` code.
 
 ## Usage
 
-Here is an example (acually par of the projects tests suite):
+`ember-cli-run-later` provides the same interface as the `Ember.run.later`
+function does, so you don't have to your existent `later` calls. You
+just need to include the function from the addon and you are reeady to
+go.
+
+Here is an example (acually part of the project's test suite):
 
 ```js
 import Ember from 'ember';
@@ -34,10 +39,16 @@ export default Ember.Component.extend({
     return "Still waiting...";
   }),
 
+  promiseResolvedText: Ember.computed(function() {
+    return "unresolved";
+  }),
+
   initLater: Ember.on('init', function() {
     later(() => {
       this.set("text", "Initialized");
-    }, 200);
+    }, 200).then(() => {
+      this.set('promiseResolvedText', "resolved");
+    });
   })
 });
 ```
@@ -45,12 +56,32 @@ export default Ember.Component.extend({
 Test example:
 
 ```js
+import laterQueue from '../run-test-mode';
+
+let application;
+
+module('An Integration test', {
+  beforeEach: function() {
+    application = startApp();
+    laterQueue.empty();
+  },
+  afterEach: function() {
+    Ember.run(application, 'destroy');
+  }
+});
+
 test('can execute code which was scheduled for later', function(assert) {
   visit('/');
 
   andThen(function() {
-    assert.equal(find('.later-text').text().trim(), "Still
-      waiting...");
+    assert.equal(
+      find('.later-text .first').text().trim(),
+      "Still waiting..."
+    );
+    assert.equal(
+      find('.later-text .second').text().trim(),
+      "unresolved"
+    );
   });
 
   andThen(function() {
@@ -58,18 +89,35 @@ test('can execute code which was scheduled for later', function(assert) {
   });
 
   andThen(function() {
-    assert.equal(find('.later-text').text().trim(),
-      "Initialized");
-    });
+    assert.equal(
+      find('.later-text .first').text().trim(),
+      "Initialized"
+    );
+    assert.equal(
+      find('.later-text .second').text().trim(),
+      "resolved"
+    );
   });
+});
 ```
 
-## Setup
-
-`ember install ember-cli-run-later`
-
 Make sure to include `import laterQueue from "run-test-mode"` when your
-acceptance suite is run and dont forget to clear the `laterQueue` on each run.
+acceptance suite is ran and dont forget to clear the `laterQueue` on each run.
+
+Importing `laterQueue` will override the normal behavior of the addon,
+instead of calling Ember's `run.later` method, it will store the
+provided parameters in a queue.
+
+As you can see in the test example, the `laterQueue` provides methods to
+run the stored calls using the `later` method.
+
+### `laterQueue.execNext`
+
+Will execute the first stored call on the queue.
+
+### `laterQueue.execAll`
+
+Will execute all stored calls in the queue
 
 ## Installation
 
