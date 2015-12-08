@@ -20,6 +20,6 @@ export let Run = Ember.Object.extend({
   }
 });
 
-export function later(fn, delay) {
-  return Run.create().later(fn, delay);
+export function later(...args) {
+  return Run.create().later(...args);
 }

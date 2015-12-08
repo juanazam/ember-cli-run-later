@@ -4,6 +4,38 @@ import { module, test } from 'qunit';
 
 module('Unit | Utility | run-test-mode');
 
+test('supports run call with target object', function(assert) {
+  laterQueue.empty();
+  let target = {
+    result: null,
+    myFunction() {
+      this.result = 'resolved';
+    }
+  };
+
+  later(target, target.myFunction, 200);
+
+  laterQueue.execNext();
+
+  assert.equal(target.result, 'resolved');
+});
+
+test('supports run call with target object and function name', function(assert) {
+  laterQueue.empty();
+  let target = {
+    result: null,
+    myFunction() {
+      this.result = 'resolved';
+    }
+  };
+
+  later(target, "myFunction", 200);
+
+  laterQueue.execNext();
+
+  assert.equal(target.result, 'resolved');
+});
+
 test('later method returns promise with code to be executed and stores in queue', function(assert) {
   laterQueue.empty();
   let myTestingFunction = () => 'value';
@@ -11,7 +43,7 @@ test('later method returns promise with code to be executed and stores in queue'
   later(myTestingFunction, 200);
 
   assert.equal(laterQueue.queue.length, 1);
-  assert.equal(laterQueue.queue[0].__state, myTestingFunction);
+  assert.equal(laterQueue.queue[0].__state[0], myTestingFunction);
 });
 
 test('can execute queued calls one by one', function(assert) {
